@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Shelf from './Shelf';
 import { Link } from 'react-router-dom';
 
- const ListShelfs = props => {
+ const Shelves = props => {
 
     const { books = [] , onBookUpdateShelf } = props;
 
@@ -36,9 +36,9 @@ import { Link } from 'react-router-dom';
   }
 
 
-ListShelfs.propTypes = {
+Shelves.propTypes = {
   books: PropTypes.array.isRequired,
   onBookUpdateShelf: PropTypes.func.isRequired
 };
 
-export default ListShelfs;
+export default Shelves;

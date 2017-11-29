@@ -1,6 +1,6 @@
 import React from 'react';
 import SearchBooks from './components/SearchBooks';
-import ListShelfs from './components/ListShelfs';
+import Shelves from './components/Shelves';
 import { Route } from 'react-router-dom';
 import * as BooksAPI from './api/BooksAPI';
 
@@ -17,8 +17,6 @@ class BooksApp extends React.Component {
   
   // event life-cycle - inicia state depois do componente carregado no DOM
   componentDidMount() {
-    this.setState({query: ''}); 
-    this.setState({booksSearch: []});
     this.loadBooks();
   }
   
@@ -32,37 +30,34 @@ class BooksApp extends React.Component {
       book.shelf = shelf; // atualiza shelf no book clicado
       filteredBooks.push(book); // inclui livro alterado no array
 
+      const filteredSearchBooks = this.state.booksSearch.filter( b => b.id !== book.id);
+
       this.setState( {
-         booksShelfs: filteredBooks
+         booksShelfs: filteredBooks,
+         booksSearch: filteredSearchBooks
       })
     });
- }
-
- updateBookSearchShelf = (book, shelf) => {
-  console.warn('updateBookSearchShelf' , book.id , shelf);
-  BooksAPI.update(book , shelf).then( () => {
-    // apos atualizar no servidor, refletir a alteracao de shelf na tela alterando o estado
-    console.log('this.state.booksSearch' , this.state.booksSearch);
-    const filteredSearchBooks = this.state.booksSearch.filter( b => b.id !== book.id);
-    // book.shelf = shelf; // atualiza shelf no book clicado
-    // filteredSearchBooks.push(book); // inclui livro alterado no array
-
-    this.loadBooks();
-    // console.log('this.stae.booksShelfs=' , this.state.booksShelfs)
-    // const allBooks = this.state.booksShelfs.push(book);
-
-
-    this.setState( {
-       booksSearch: filteredSearchBooks
-    })
-  });
  }
 
 
    // atualiza estado Query
 updateQuery = (query) => {   
     BooksAPI.search(query.trim() , 20 ).then( (response) => {
-        this.setState({ booksSearch : response })
+
+      // Nao consegui utilizar "Difference" para retirar do array de livros retornados no Search, 
+      // os livros já em alguma das estantes. ????
+
+      const setBooksOnShelf = new Set(this.state.booksShelfs);
+      const setBooksSearch = new Set(response);
+      
+      console.debug('setBooksOnShelf', setBooksOnShelf.size);
+      console.debug('setBooksSearch', setBooksSearch.size);
+      const filteredSearchBooks = new Set (
+        [...setBooksSearch].filter( book => !setBooksOnShelf.has(book))
+      );
+      console.log('filteredSearchBooks' , filteredSearchBooks.size);
+
+        this.setState({ booksSearch : [...filteredSearchBooks] })
     });        
 
     this.setState({
@@ -87,7 +82,7 @@ updateQuery = (query) => {
     return (
       <div className="app">
       <Route exact path="/create" render={({history})=>(
-          <SearchBooks onBookUpdateShelf={this.updateBookSearchShelf} 
+          <SearchBooks onBookUpdateShelf={this.updateBookShelf} 
                        onUpdateQuery={this.updateQuery} 
                        query={query}
                        books={booksSearch}
@@ -96,7 +91,7 @@ updateQuery = (query) => {
           />)}
       />
       <Route exact path="/" render={({history})=>(
-          <ListShelfs books= {booksShelfs} 
+          <Shelves books= {booksShelfs} 
                       onBookUpdateShelf={this.updateBookShelf}
                       onClickSearch={() => history.push('/search')} 
           />)}

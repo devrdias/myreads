@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import * as BooksAPI from '../api/BooksAPI';
 
 const Book = props => {
     const { title, authors , shelf , imageLinks } = props.book;
