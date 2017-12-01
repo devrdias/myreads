@@ -29,7 +29,7 @@ import { Link } from 'react-router-dom';
           </div>
         </div>
         <div className="open-search">
-          <Link to="/create" >Add a book</Link>
+          <Link to="/search" >Add a book</Link>
         </div>
       </div>
     );
